@@ -3,7 +3,17 @@ import News from "../models/News.js";
 // Create News
 export const createNews = async (req, res) => {
   try {
-    const news = await News.create(req.body);
+    const { title, description, image, category, source, url, audioUrl } = req.body;
+
+    const news = await News.create({
+      title,
+      description,
+      image,
+      category,
+      source,
+      url,
+      audioUrl,
+    });
 
     res.status(201).json({
       success: true,
@@ -62,9 +72,19 @@ export const getNewsById = async (req, res) => {
 // Update News
 export const updateNews = async (req, res) => {
   try {
+    const { title, description, image, category, source, url, audioUrl } = req.body;
+
     const news = await News.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      {
+        title,
+        description,
+        image,
+        category,
+        source,
+        url,
+        audioUrl,
+      },
       { new: true, runValidators: true }
     );
 

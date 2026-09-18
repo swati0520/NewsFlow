@@ -31,6 +31,11 @@ const newsSchema = new mongoose.Schema(
       default: "",
       trim: true,
     },
+    audioUrl: {
+      type: String,
+      default: "",
+      trim: true,
+    },
   },
   { timestamps: true }
 );

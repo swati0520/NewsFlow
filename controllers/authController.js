@@ -52,7 +52,7 @@ export const registerUser = async (req, res) => {
 export const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
-    console.log("LOGIN BODY:", req.body);
+  
 
     if (!email || !password) {
       return res.status(400).json({
@@ -165,7 +165,7 @@ export const googleLogin = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("GOOGLE LOGIN ERROR:", error);
+   
 
     return res.status(401).json({
       success: false,
