@@ -107,30 +107,54 @@ export const googleLogin = async (req, res) => {
   try {
     const { token } = req.body;
 
+    if (!token) {
+      return res.status(400).json({
+        success: false,
+        message: "Google token is required",
+      });
+    }
+
     const ticket = await googleClient.verifyIdToken({
       idToken: token,
       audience: process.env.GOOGLE_CLIENT_ID,
     });
 
-    const { sub, name, email } = ticket.getPayload();
+    const payload = ticket.getPayload();
+
+    const { sub, name, email } = payload;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: "Google account email not found",
+      });
+    }
 
     let user = await User.findOne({ email });
 
     if (!user) {
       user = await User.create({
-        name,
+        name: name || "Google User",
         email,
         googleId: sub,
       });
+    } else if (!user.googleId) {
+      user.googleId = sub;
+      await user.save();
     }
 
     const jwtToken = jwt.sign(
-      { id: user._id, email: user.email },
+      {
+        id: user._id,
+        email: user.email,
+      },
       process.env.JWT_SECRET,
-      { expiresIn: "7d" }
+      {
+        expiresIn: "7d",
+      }
     );
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       message: "Google login successful",
       token: jwtToken,
@@ -141,9 +165,12 @@ export const googleLogin = async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(401).json({
+    console.error("GOOGLE LOGIN ERROR:", error);
+
+    return res.status(401).json({
       success: false,
       message: "Google authentication failed",
+      error: error.message,
     });
   }
 };
